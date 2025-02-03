@@ -2,18 +2,7 @@
 #include <stdio.h>
 #include "lab.h"
 
-static void destroy_data(void *data)
-{
-  free(data);
-}
-
-static int compare_to(const void *a, const void *b)
-{
-  int fst = *(int *)a;
-  int snd = *(int *)b;
-  return fst - snd;
-}
-
+// Removes unused compare_to and destroy_data functions to get rid of warnings
 
 /**
     * @brief Create a new list with callbacks that know how to deal with the data that
@@ -37,6 +26,10 @@ list_t *list_init(void (*destroy_data)(void *), int (*compare_to)(const void *, 
 
     //init sentinel node
     list->head = (node_t *)malloc(sizeof(node_t));
+    if (list->head == NULL) {  // Check allocation failure and free list if failed
+        free(list);
+        return NULL;
+    }
     list->head->data = NULL;
     list->head->next = list->head;
     list->head->prev = list->head;
@@ -91,8 +84,16 @@ void list_destroy(list_t **list)
 */
 list_t *list_add(list_t *list, void *data)
 {
+    //function ends if allocation fails
+    if (list == NULL) {
+        return NULL;
+    }
+
     //allocate memory for new node
     node_t *new_node = (node_t *)malloc(sizeof(node_t));
+    if (new_node == NULL) {
+        return NULL; // Handle allocation failure
+    }
 
     new_node->data = data;
 
